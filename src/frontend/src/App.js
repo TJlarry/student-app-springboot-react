@@ -7,14 +7,19 @@ import {Layout,
         Menu,
         Breadcrumb,
         Table,
+        Empty,
+        Spin
          } from 'antd';
 import {
-    DesktopOutlined,
-    PieChartOutlined,
-    FileOutlined,
-    TeamOutlined,
-    UserOutlined,
+        DesktopOutlined,
+        PieChartOutlined,
+        FileOutlined,
+        TeamOutlined,
+        UserOutlined,
+        LoadingOutlined
+
 } from '@ant-design/icons';
+
 import './App.css';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -41,15 +46,17 @@ const columns = [
                     key: 'gender',
                                     },
                 ];
-
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 function App() {
 const [students,setStudents] = useState([]);
-const [collapsed, setCollapsed] = useState(false)
+const [collapsed, setCollapsed] = useState(false);
+const [fetching, setFetching] = useState(true);
 const fetchStudents = () => getAllStudents()
                           .then(res => res.json())
                           .then(data => {
                           console.log(data);
                           setStudents(data);
+                          setFetching(false);
                           })
 
 useEffect(() => {
@@ -58,15 +65,21 @@ fetchStudents();
 }, []);
 
 const renderStudents = () => {
- if (students.length <= 0){
-return "no data available"
- }
-return <Table dataSource={students} columns={columns} />;
-
-
+if (fetching){
+ return <Spin indicator={antIcon} />
 }
-
-
+ if (students.length <= 0){
+   return <Empty/>;
+ }
+   return <Table
+       dataSource={students}
+       columns={columns}
+       bordered
+       title={() => 'Students'}
+       pagination={{ pageSize: 50 }} scroll={{ y: 240 }}
+       rowkey = {(student) => student.id}
+        />;
+}
     return <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsible collapsed={collapsed}
                onCollapse={setCollapsed}>
@@ -103,7 +116,7 @@ return <Table dataSource={students} columns={columns} />;
               {renderStudents()}
                 </div>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+            <Footer style={{ textAlign: 'center' }}>By Olanrewaju</Footer>
         </Layout>
     </Layout>
 }
